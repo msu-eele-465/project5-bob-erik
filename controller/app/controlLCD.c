@@ -87,12 +87,12 @@ void send_Blinking_toggle(int Toggle) {
     return;
 
 }
-void send_Pattern_Speed(long int new_speed) {
+void send_Temp_LCD(int new_temp) {
     __delay_cycles(4000);
     UCB0I2CSA = 0x0047; // choose slave address
     UCB0TBCNT = 0x02;
     dataSend[0] = 4; // this will select the pattern selection variable on the slave
-    dataSend[1] = new_speed/6250; // send divided time between phase changes to slave, to be expanded
+    dataSend[1] = new_temp; // send divided time between phase changes to slave, to be expanded
                                    // again and set to count-up-to variable
     UCB0CTLW0 |= UCTXSTT; // generate start condition
     return;
