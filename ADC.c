@@ -97,6 +97,7 @@ if(ADC_Start == 1){ // asserts every .33 seconds
 
 // interrupt
 
+/*
 #pragma vector=ADC_VECTOR
 __interrupt void ADC_ISR(void){
     ADC_Value = ADCMEM0; // Read ADC Value
@@ -108,12 +109,12 @@ __interrupt void ADC_ISR(void){
         P1OUT &= ~BIT0; //LED1 = OFF
         P6OUT |= BIT6; //LED2 = ON (green)
     }
-}
+} */
 
-/*
+
 #pragma vector=ADC_VECTOR
 __interrupt void ADC_ISR(void){
     ADC_Value = ADCMEM0; // get ADC value
 }
-    */
+   
 
