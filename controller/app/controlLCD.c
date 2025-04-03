@@ -11,8 +11,8 @@ void send_Latest_Input(char last_input) {
     UCB0I2CSA = 0x0047; // choose slave address
     UCB0TBCNT = 0x02; // always send 2 bytes
     dataSend[0] = 1; // this will select the pattern selection variable on the slave
-    int send_value;
-    if (last_input == '1') {
+    //int send_value;
+    /*if (last_input == '1') {
         send_value = 1;
     }
     else if (last_input == '2') {
@@ -62,8 +62,8 @@ void send_Latest_Input(char last_input) {
     }
     else {
         send_value = 0; // likely 'I', should never be seen
-    }
-    dataSend[1] = send_value; // send value of previous/lastest input
+    }*/
+    dataSend[1] = last_input - '0'; // send value of previous/lastest input
     UCB0CTLW0 |= UCTXSTT; // generate start condition
     return;
 }

@@ -139,12 +139,13 @@ int main(void)
                 unsigned char ones = ((dataint % 10) / 10) + 5 + '0'; // add 5
                 writeChar(ones);
                 writeChar('.');
-                unsigned char dec = (dataint % 100) + '0';
+                unsigned char dec = (dataint % 10) + '0';
                 writeChar(dec);
-                writeMessage("°C");
+                writeChar(11011111);
+                writeChar('C');
             }
             else if (varint == 5) {
-                
+
             }
             else {
                 // do something or nothing in case of invalid send

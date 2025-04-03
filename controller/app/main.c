@@ -58,6 +58,10 @@ int main(void)
     TB1CCR0 = 32768;                            //sets Timer B0 to 1 second (32.768 kHz)
     TB1CTL |= TBSSEL_1 | ID_0 | MC__UP | TBCLR;    //ACLK, No divider, Up mode, Clear timer
 
+    TB2CCTL0 |= CCIE;                            //CCIE enables Timer B0 interrupt
+    TB2CCR0 = 16000;                            //sets Timer B0 to 1 second (32.768 kHz)
+    TB2CTL |= TBSSEL_1 | ID_0 | MC__UP | TBCLR;    //ACLK, No divider, Up mode, Clear timer
+
 
     // Disable the GPIO power-on default high-impedance mode to activate
     // previously configure port settings
@@ -262,6 +266,7 @@ int main(void)
             }
         }
         send_next_temp = false;
+        next_window = '3';
         send_LED_Pattern(8); // turn off LED bar
         send_Blinking_toggle(0); // totally clear LCD
         send_LED_Timer_Pause(); // disable LCD-pattern-trigger timer interrupt here (system returns to locked state)
@@ -324,4 +329,12 @@ __interrupt void EUSCI_B0_I2C_ISR(void) {
 #pragma vector=ADC_VECTOR
 __interrupt void ADC_ISR(void){
     ADC_Value = ADCMEM0; // get ADC value
+    ADCIFG |= ADCIFG0;
+    ADCIE &= ~ADCIE0;
+}
+
+#pragma vector = TIMER2_B0_VECTOR               //time B0 ISR
+__interrupt void TIMERB2_ISR(void) {
+    record_next_temp = true;                              //toggles P1.0 LED
+    TB2CCTL0 &= ~CCIFG;
 }
