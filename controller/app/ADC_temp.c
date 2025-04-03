@@ -10,10 +10,12 @@ float voltage;
 float average[9]; // could be changed for double digit window size
 //float average[20]; // array size of 20 for the extra credit of double digit window size
 double temp_C;
-float cur_temp;
+// volatile float cur_temp;
 int ave_cnt = 9; // same as above
 //int ave_cnt = [20]; // for double digit window size
 float total = 0;
+int i;
+int data_cnt;
 
 void config_ADC() {
         P5SEL1 |= BIT0; // configure P5.0 for A8
@@ -21,8 +23,8 @@ void config_ADC() {
 
         // time config
         TB0CTL |= TBCLR;
-        TB0CTL |= TBSSEL_ACLK;
-        TB0CTL |= MC_UP;
+        TB0CTL |= TBSSEL__ACLK;
+        TB0CTL |= MC__UP;
         TB0CCR0 = 10922;
 
         TB0CCTL0 |= CCIE;
@@ -34,13 +36,13 @@ void config_ADC() {
         ADCCTL0 &= ~ADCSHT; //  Clear ADCSHT from def. of ADCSHT = 01
         ADCCTL0 |= ADCSHT_2; // 16 conversion cycles
         ADCCTL0 |= ADCON; // turn ADC on
-        ADCCTL0 |= ADCSRED_5; // ext pos ref
+        // ADCCTL0 |= ADCSRED_5; // ext pos ref
         ADCCTL1 |= ADCSSEL_2; // ADC Clock Source
         ADCCTL1 |= ADCSHP; // sample signal source = sampling timer
         ADCCTL2 &= ~ADCRES; // clear ADCRES from def. of  ADCRES=01
         ADCCTL2 |= ADCRES_2; // 12 bit resolution
 
-        ADCMTL0 |= ADCINCH_8 // ADC input Channel = A8 CHANGE THIS FOR THE A PORT WE ARE PLANNING ON GOING TO
+        ADCMCTL0 |= ADCINCH_8; // ADC input Channel = A8 CHANGE THIS FOR THE A PORT WE ARE PLANNING ON GOING TO
         return;
 }
 
@@ -55,7 +57,7 @@ void get_temp(int window) {  // cur_temp, ADC_Value
     TB0CCTL0 &= ~CCIFG;
 
     voltage = (ADC_Value*3.3)/(4095); // gets voltage value from equation
-    double in - 2196200 + ((1.8639-voltage)/.00000388); // from equation
+    double in = 2196200 + ((1.8639-voltage)/.00000388); // from equation
     double root = sqrt(in); //from equation
     temp_C = -1481.96 + root-3; // combine equation for temp
 
