@@ -2,6 +2,7 @@
 #include <msp430.h>
 #include <stdbool.h>
 #include <string.h>
+#include "app/ADC_temp.h"
 #include "controlPatternsLED.h"
 #include "controlLCD.h"
 #include "keypad.h"
@@ -12,15 +13,16 @@
 #define GREEN_LED BIT5 
 #define BLUE_LED  BIT6 
 
+volatile unsigned int ADC_Value = 0;
 volatile unsigned int red_counter = 0;
 volatile unsigned int green_counter = 0;
 volatile unsigned int blue_counter = 0;
 
-volatile float cur_temp = 0;
+volatile float cur_temp = 0;  // this is what you update to thedegrees celcius
 volatile unsigned int send_temp = 0;
 
 volatile bool send_next_temp = false;
-volatile bool record_next_temp = false;
+volatile bool record_next_temp = false; // Set this varibale every .5 seconds when the system is not locked.
 volatile char next_window = '3';
 
 volatile unsigned int dataSend[2] = {69, 43};
@@ -61,6 +63,8 @@ int main(void)
     // previously configure port settings
 
     set_timer(); 
+
+    config_ADC();
 
     init_LED_I2C(); // what it says, but this also likely works for LCD controller
 
@@ -194,7 +198,7 @@ int main(void)
                     input_change = true;
                 }
             } */
-            else if (input_change && Action_Sel == 2 && lastInput != '*' && lastInput < ":") {
+            else if (input_change && Action_Sel == 2 && lastInput != '*' && lastInput < ':') { 
                 input_change = false;
                 next_window = lastInput;
                 // if valid input, record the number
@@ -232,6 +236,7 @@ int main(void)
             else if (record_next_temp) {
                 send_next_temp = true;
                 record_next_temp = false;
+                get_temp(next_window - '0');
                 // code to read temperature
                 // cur_temp variable gets set to read value
 
@@ -314,4 +319,9 @@ __interrupt void EUSCI_B0_I2C_ISR(void) {
         UCB0IFG &= ~UCTXIFG0; 
     }
     // likely need to clear interrupt flag following this
+}
+
+#pragma vector=ADC_VECTOR
+__interrupt void ADC_ISR(void){
+    ADC_Value = ADCMEM0; // get ADC value
 }
