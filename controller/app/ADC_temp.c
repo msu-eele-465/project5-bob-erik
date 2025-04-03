@@ -6,6 +6,13 @@
 
 // cur_temp = 0;  this is what you update to the degrees celcius
 
+float voltage;
+float average[9];
+double temp_C;
+float cur_temp;
+int ave_cnt = 9;
+float total = 0;
+
 void config_ADC() {
         P5SEL1 |= BIT0; // configure P5.0 for A8
         P5SEL0 |= BIT0;
@@ -37,7 +44,8 @@ void config_ADC() {
 
 void get_temp(int window) {  // cur_temp, ADC_Value
     data_cnt = 0;
-    ADC_Start = 0; // resets
+    //ADC_Start = 0; // resets
+
     ADCCTL0 |= ADCENC | ADCSC; // starts adc
     TB0CCTL0 &= ~CCIFG; // clears timer
     while((ADCIFG & ADCIFG0) == 0){} // wait for ADC to clear
@@ -47,6 +55,7 @@ void get_temp(int window) {  // cur_temp, ADC_Value
     double in - 2196200 + ((1.8639-voltage)/.00000388); // from equation
     double root = sqrt(in); //from equation
     temp_C = -1481.96 + root-3; // combine equation for temp
+
     if(ave_cnt != 0){ // populates array when its empty
         ave_cnt--;
         average[ave_cnt] = temp_C;
@@ -58,14 +67,13 @@ void get_temp(int window) {  // cur_temp, ADC_Value
         }
         average[0] = temp_C;
 
-        for(i=0; i<press; i++){
+        for(i=0; i<window; i++){
             total = total + average[i];
         }
-        ave_c = (total/press)*100; // convert to celcius average
-        ave_k = ave_c+27315; // get kelvin average
+        cur_temp = (total/window); // convert to celcius average
         total = 0;
     }
 
-    cur_temp = temp_C;
+
     return;
 }
