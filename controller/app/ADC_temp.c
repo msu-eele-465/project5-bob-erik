@@ -22,13 +22,13 @@ void config_ADC() {
         P5SEL0 |= BIT0;
 
         // time config
-        TB0CTL |= TBCLR;
-        TB0CTL |= TBSSEL__ACLK;
-        TB0CTL |= MC__UP;
-        TB0CCR0 = 10922;
+        TA0CTL |= TBCLR;
+        TA0CTL |= TBSSEL__ACLK;
+        TA0CTL |= MC__UP;
+        TA0CCR0 = 10922;
 
-        TB0CCTL0 |= CCIE;
-        TB0CCTL0 &= ~CCIFG;
+        TA0CCTL0 |= CCIE;
+        TA0CCTL0 &= ~CCIFG;
 
         // __enable_interrupt();
 
