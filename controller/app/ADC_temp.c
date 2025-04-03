@@ -6,15 +6,6 @@
 
 // cur_temp = 0;  this is what you update to the degrees celcius
 
-float voltage;
-float average[9]; // could be changed for double digit window size
-//float average[20]; // array size of 20 for the extra credit of double digit window size
-double temp_C;
-float cur_temp;
-int ave_cnt = 9; // same as above
-//int ave_cnt = [20]; // for double digit window size
-float total = 0;
-
 void config_ADC() {
         P5SEL1 |= BIT0; // configure P5.0 for A8
         P5SEL0 |= BIT0;
@@ -45,10 +36,8 @@ void config_ADC() {
 }
 
 void get_temp(int window) {  // cur_temp, ADC_Value
-   
     data_cnt = 0;
-    //ADC_Start = 0; // resets
-
+    ADC_Start = 0; // resets
     ADCCTL0 |= ADCENC | ADCSC; // starts adc
     TB0CCTL0 &= ~CCIFG; // clears timer
     while((ADCIFG & ADCIFG0) == 0){} // wait for ADC to clear
@@ -58,24 +47,25 @@ void get_temp(int window) {  // cur_temp, ADC_Value
     double in - 2196200 + ((1.8639-voltage)/.00000388); // from equation
     double root = sqrt(in); //from equation
     temp_C = -1481.96 + root-3; // combine equation for temp
-
     if(ave_cnt != 0){ // populates array when its empty
         ave_cnt--;
         average[ave_cnt] = temp_C;
     }
 
-    else{ // shifts bits up to make room for new data (temps)
+    else{ // shifts bits to make room for new data
         for(i=8; i>0; i--){
-            average[i] = average[i-1]; // populate the array if empty
+            average[i] = average[i-1];
         }
         average[0] = temp_C;
 
-        for(i=0; i<window; i++){ // window size n for average temp of n
+        for(i=0; i<press; i++){
             total = total + average[i];
         }
-        cur_temp = (total/window); // convert to celcius average
+        ave_c = (total/press)*100; // convert to celcius average
+        ave_k = ave_c+27315; // get kelvin average
         total = 0;
     }
 
+    cur_temp = temp_C;
     return;
 }

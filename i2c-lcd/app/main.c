@@ -143,6 +143,9 @@ int main(void)
                 writeChar(dec);
                 writeMessage("°C");
             }
+            else if (varint == 5) {
+                
+            }
             else {
                 // do something or nothing in case of invalid send
             }
