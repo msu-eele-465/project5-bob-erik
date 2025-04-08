@@ -8,8 +8,6 @@
 #include <stdint.h>
 
 // P1.2 is data pin (I2C), P1.3 is clock
-volatile uint8_t Last_char_int;
-volatile char Last_char_char;
 
 volatile uint8_t CursorState = 0; // tracks cursor current state
 
@@ -76,12 +74,9 @@ int main(void)
                 dataRdy2 = 0;
             }
             if(varint == 1) {
-                Last_char_int = dataint;
-            const char lookupTable[18] = "I123A456B789C*0#D";
-            Last_char_char = lookupTable[Last_char_int];
-
-            goToDDRLCD(0x4F); // go to final character of second row
-            writeChar(Last_char_char); // write our character
+            goToDDRLCD(0x4D); // go to 3rd to last character of second row
+            writeMessage("N=");
+            writeChar('0' + dataint); // write our window size
             }
             else if (varint == 2) { // dataint is pattern name integer
                 goToDDRLCD(0x00); // go to first character of first row
@@ -99,7 +94,7 @@ int main(void)
                 else if (dataint == 3) {
                     writeMessage("in and out");
                 }
-                else if (dataint == 4) {
+                /*else if (dataint == 4) {
                     writeMessage("down counter");
                 }
                 else if (dataint == 5) {
@@ -110,6 +105,12 @@ int main(void)
                 }
                 else if (dataint == 7) {
                     writeMessage("fill left");
+                }*/
+                else if (dataint == 8) {
+                    writeMessage("Set Window Size");
+                }
+                else if (dataint == 9) {
+                    writeMessage("Set Pattern");
                 }
             }
             else if (varint == 3) { // dataint is blinking toggle state
@@ -132,15 +133,19 @@ int main(void)
             }
             else if (varint == 4) { // dataint is pattern speed
                 goToDDRLCD(0x40); // go to first character of first row
-                writeMessage("Period=");
-                unsigned char ones = (dataint/4) + '0';
+                writeMessage("T=");
+                unsigned char tens = (dataint/100 + 1) + '0'; // add 10
+                writeChar(tens);
+                unsigned char ones = ((dataint % 10) / 10) + 5 + '0'; // add 5
                 writeChar(ones);
-                switch (dataint % 4) {
-                    case 0: writeMessage(".00"); break;
-                    case 1: writeMessage(".25"); break;
-                    case 2: writeMessage(".50"); break;
-                    case 3: writeMessage(".75"); break;
-                }
+                writeChar('.');
+                unsigned char dec = (dataint % 10) + '0';
+                writeChar(dec);
+                writeChar(11011111);
+                writeChar('C');
+            }
+            else if (varint == 5) {
+
             }
             else {
                 // do something or nothing in case of invalid send
